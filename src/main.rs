@@ -40,7 +40,7 @@ fn main() -> Result<()> {
 
     let (ignored_files, ignored_lines) = get_ignored_files_and_lines()?;
 
-    let (uncovered_lines, unused_ignored_lines, unused_ignored_files) =
+    let (uncovered_lines, unused_ignored_files, unused_ignored_lines) =
         process(&uncovered_lines, &ignored_files, &ignored_lines);
 
     let (exit_code, report) = generate_report(

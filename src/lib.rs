@@ -29,13 +29,10 @@ const CARGO_LLVM_COV_REPORT_COMMAND: &str = "cargo llvm-cov report --show-missin
 //--------------------------------------------------------------------------------------------------
 // Types
 
-type IgnoredFilesAndLines = (BTreeSet<PathBuf>, BTreeMap<PathBuf, BTreeSet<usize>>);
-
-type Results = (
-    BTreeMap<PathBuf, BTreeSet<usize>>,
-    BTreeSet<PathBuf>,
-    BTreeMap<PathBuf, BTreeSet<usize>>,
-);
+type Files = BTreeSet<PathBuf>;
+type Lines = BTreeMap<PathBuf, BTreeSet<usize>>;
+type FilesAndLines = (Files, Lines);
+type Results = (Lines, Files, Lines);
 
 //--------------------------------------------------------------------------------------------------
 // Functions
@@ -65,7 +62,7 @@ pub fn run_cargo_llvm_cov() -> Result<()> {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /// Get uncovered lines
-pub fn get_uncovered_lines() -> Result<BTreeMap<PathBuf, BTreeSet<usize>>> {
+pub fn get_uncovered_lines() -> Result<Lines> {
     let current_dir = std::env::current_dir()?;
 
     match Command::new("cargo")
@@ -118,7 +115,7 @@ pub fn get_uncovered_lines() -> Result<BTreeMap<PathBuf, BTreeSet<usize>>> {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /// Get ignored files and lines
-pub fn get_ignored_files_and_lines() -> Result<IgnoredFilesAndLines> {
+pub fn get_ignored_files_and_lines() -> Result<FilesAndLines> {
     let mut ignored_files = BTreeSet::new();
 
     let ignored_lines = WalkDir::new(".")
@@ -164,11 +161,7 @@ pub fn get_ignored_files_and_lines() -> Result<IgnoredFilesAndLines> {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /// Process uncovered lines to remove ignored files/lines and identify unused ignored files/lines
-pub fn process(
-    uncovered_lines: &BTreeMap<PathBuf, BTreeSet<usize>>,
-    ignored_files: &BTreeSet<PathBuf>,
-    ignored_lines: &BTreeMap<PathBuf, BTreeSet<usize>>,
-) -> Results {
+pub fn process(uncovered_lines: &Lines, ignored_files: &Files, ignored_lines: &Lines) -> Results {
     let mut uncovered_lines = uncovered_lines.clone();
 
     // Remove ignored files
@@ -218,9 +211,9 @@ pub fn process(
 
 /// Generate report
 pub fn generate_report(
-    uncovered_lines: &BTreeMap<PathBuf, BTreeSet<usize>>,
-    unused_ignored_lines: &BTreeMap<PathBuf, BTreeSet<usize>>,
-    unused_ignored_files: &BTreeSet<PathBuf>,
+    uncovered_lines: &Lines,
+    unused_ignored_files: &Files,
+    unused_ignored_lines: &Lines,
 ) -> Result<(i32, String)> {
     let mut exit_code = 0;
     let mut report = String::new();
@@ -293,11 +286,8 @@ pub fn generate_report(
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /// Write files and line number ranges
-fn write_files_line_ranges(
-    s: &mut String,
-    files_lines: &BTreeMap<PathBuf, BTreeSet<usize>>,
-) -> Result<()> {
-    for (file, line_numbers) in files_lines {
+fn write_files_line_ranges(s: &mut String, lines: &Lines) -> Result<()> {
+    for (file, line_numbers) in lines {
         let total = line_numbers.len();
         if total > 0 {
             let r = ranges(line_numbers);
