@@ -45,8 +45,8 @@ fn main() -> Result<()> {
 
     let (exit_code, report) = generate_report(
         &uncovered_lines,
-        &unused_ignored_lines,
         &unused_ignored_files,
+        &unused_ignored_lines,
     )?;
 
     print!("{report}");

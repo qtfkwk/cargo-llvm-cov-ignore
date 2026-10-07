@@ -33,8 +33,8 @@ type IgnoredFilesAndLines = (BTreeSet<PathBuf>, BTreeMap<PathBuf, BTreeSet<usize
 
 type Results = (
     BTreeMap<PathBuf, BTreeSet<usize>>,
-    BTreeMap<PathBuf, BTreeSet<usize>>,
     BTreeSet<PathBuf>,
+    BTreeMap<PathBuf, BTreeSet<usize>>,
 );
 
 //--------------------------------------------------------------------------------------------------
@@ -117,7 +117,7 @@ pub fn get_uncovered_lines() -> Result<BTreeMap<PathBuf, BTreeSet<usize>>> {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-/// Get ignored lines and files
+/// Get ignored files and lines
 pub fn get_ignored_files_and_lines() -> Result<IgnoredFilesAndLines> {
     let mut ignored_files = BTreeSet::new();
 
@@ -163,7 +163,7 @@ pub fn get_ignored_files_and_lines() -> Result<IgnoredFilesAndLines> {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-/// Process uncovered lines to remove ignored lines/files and identify unused ignored lines/files
+/// Process uncovered lines to remove ignored files/lines and identify unused ignored files/lines
 pub fn process(
     uncovered_lines: &BTreeMap<PathBuf, BTreeSet<usize>>,
     ignored_files: &BTreeSet<PathBuf>,
@@ -211,7 +211,7 @@ pub fn process(
         uncovered_lines.remove(&file);
     }
 
-    (uncovered_lines, unused_ignored_lines, unused_ignored_files)
+    (uncovered_lines, unused_ignored_files, unused_ignored_lines)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

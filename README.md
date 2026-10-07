@@ -40,7 +40,7 @@ cargo llvm-cov-ignore -V
 ```
 
 ```text
-cargo-llvm-cov-ignore 0.1.0
+cargo-llvm-cov-ignore 0.1.1
 ```
 
 # Example
@@ -62,6 +62,9 @@ There are zero files with unused ignored lines.
 
 ## Unused Ignored Files
 
-There are zero unused ignored files.
+There are 2 unused ignored files:
+
+- `target/package/cargo-llvm-cov-ignore-0.1.0/src/lib.rs`
+- `target/package/cargo-llvm-cov-ignore-0.1.0/src/main.rs`
 ```
 
