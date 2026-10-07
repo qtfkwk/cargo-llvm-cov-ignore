@@ -11,6 +11,13 @@ Run `cargo llvm-cov` with ignore capabilities and simple report
   - LSB 2 is set if there are unused ignored lines
   - LSB 3 is set if there are unused ignored files
 
+See also:
+
+- `cargo-llvm-cov`
+  - <https://crates.io/crates/cargo-llvm-cov>
+  - <https://github.com/taiki-e/cargo-llvm-cov>
+  - <https://github.com/taiki-e/cargo-llvm-cov/issues/524>
+
 # Install
 
 ```bash
@@ -40,7 +47,7 @@ cargo llvm-cov-ignore -V
 ```
 
 ```text
-cargo-llvm-cov-ignore 0.1.2
+cargo-llvm-cov-ignore 0.1.3
 ```
 
 # Example
