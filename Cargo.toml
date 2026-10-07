@@ -1,0 +1,13 @@
+[package]
+name = "cargo-llvm-cov-ignore"
+version = "0.1.0"
+edition = "2024"
+description = "Run `cargo llvm-cov` with ignore capabilities and simple report"
+repository = "https://github.com/qtfkwk/cargo-llvm-cov-ignore"
+license = "MIT"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+clap-cargo = "0"
+walkdir = "2"
