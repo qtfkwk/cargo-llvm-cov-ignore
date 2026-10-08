@@ -47,7 +47,7 @@ cargo llvm-cov-ignore -V
 ```
 
 ```text
-cargo-llvm-cov-ignore 0.1.3
+cargo-llvm-cov-ignore 0.1.4
 ```
 
 # Example

@@ -31,8 +31,6 @@ const CARGO_LLVM_COV_REPORT_COMMAND: &str = "cargo llvm-cov report --show-missin
 
 type Files = BTreeSet<PathBuf>;
 type Lines = BTreeMap<PathBuf, BTreeSet<usize>>;
-type FilesAndLines = (Files, Lines);
-type Results = (Lines, Files, Lines);
 
 //--------------------------------------------------------------------------------------------------
 // Functions
@@ -115,7 +113,7 @@ pub fn get_uncovered_lines() -> Result<Lines> {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /// Get ignored files and lines
-pub fn get_ignored_files_and_lines() -> Result<FilesAndLines> {
+pub fn get_ignored_files_and_lines() -> Result<(Files, Lines)> {
     let mut ignored_files = BTreeSet::new();
 
     let ignored_lines = WalkDir::new(".")
@@ -160,8 +158,12 @@ pub fn get_ignored_files_and_lines() -> Result<FilesAndLines> {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-/// Process uncovered lines to remove ignored files/lines and identify unused ignored files/lines
-pub fn process(uncovered_lines: &Lines, ignored_files: &Files, ignored_lines: &Lines) -> Results {
+/// Remove ignored files/lines from uncovered lines and identify unused ignored files/lines
+pub fn process(
+    uncovered_lines: &Lines,
+    ignored_files: &Files,
+    ignored_lines: &Lines,
+) -> (Lines, Files, Lines) {
     let mut uncovered_lines = uncovered_lines.clone();
 
     // Remove ignored files
@@ -220,65 +222,32 @@ pub fn generate_report(
 
     writeln!(&mut report, "# Code Coverage")?;
 
-    writeln!(&mut report, "\n## Uncovered Lines")?;
-    let n = uncovered_lines.len();
-    if n == 0 {
-        writeln!(&mut report, "\nThere are zero files with uncovered lines.")?;
-    } else {
-        if n == 1 {
-            writeln!(&mut report, "\nThere is 1 file with uncovered line(s):")?;
-        } else {
-            writeln!(&mut report, "\nThere are {n} files with uncovered lines:")?;
-        }
+    report_lines(
+        &mut report,
+        "Uncovered Lines",
+        "uncovered line",
+        uncovered_lines,
+        &mut exit_code,
+        1,
+    )?;
 
-        write_files_line_ranges(&mut report, uncovered_lines)?;
+    report_lines(
+        &mut report,
+        "Unused Ignored Lines",
+        "unused ignored line",
+        unused_ignored_lines,
+        &mut exit_code,
+        2,
+    )?;
 
-        exit_code |= 1;
-    }
-
-    writeln!(&mut report, "\n## Unused Ignored Lines")?;
-    let n = unused_ignored_lines.len();
-    if n == 0 {
-        writeln!(
-            &mut report,
-            "\nThere are zero files with unused ignored lines."
-        )?;
-    } else {
-        if n == 1 {
-            writeln!(
-                &mut report,
-                "\nThere is 1 file with unused ignored line(s):"
-            )?;
-        } else {
-            writeln!(
-                &mut report,
-                "\nThere are {n} files with unused ignored lines:"
-            )?;
-        }
-
-        write_files_line_ranges(&mut report, unused_ignored_lines)?;
-
-        exit_code |= 2;
-    }
-
-    writeln!(&mut report, "\n## Unused Ignored Files")?;
-    let n = unused_ignored_files.len();
-    if n == 0 {
-        writeln!(&mut report, "\nThere are zero unused ignored files.")?;
-    } else {
-        if n == 1 {
-            writeln!(&mut report, "\nThere is 1 unused ignored file(s):")?;
-        } else {
-            writeln!(&mut report, "\nThere are {n} unused ignored files:")?;
-        }
-
-        for file in unused_ignored_files {
-            write!(&mut report, "\n- `{}`", file.display())?;
-        }
-        writeln!(&mut report)?;
-
-        exit_code |= 4;
-    }
+    report_files(
+        &mut report,
+        "Unused Ignored Files",
+        "unused ignored file",
+        unused_ignored_files,
+        &mut exit_code,
+        4,
+    )?;
 
     Ok((exit_code, report))
 }
@@ -335,4 +304,71 @@ fn ranges(numbers: &BTreeSet<usize>) -> Vec<String> {
         format!("{start}-{prev}")
     });
     r
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+/// Report lines
+fn report_lines(
+    s: &mut String,
+    title: &str,
+    desc: &str,
+    lines: &Lines,
+    exit_code: &mut i32,
+    lsb: i32,
+) -> Result<()> {
+    writeln!(s, "\n## {title}")?;
+
+    let n = lines.len();
+
+    if n == 0 {
+        writeln!(s, "\nThere are zero files with {desc}s.")?;
+    } else {
+        if n == 1 {
+            writeln!(s, "\nThere is 1 file with {desc}(s):")?;
+        } else {
+            writeln!(s, "\nThere are {n} files with {desc}s:")?;
+        }
+
+        write_files_line_ranges(s, lines)?;
+
+        *exit_code |= lsb;
+    }
+
+    Ok(())
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+/// Report files
+fn report_files(
+    s: &mut String,
+    title: &str,
+    desc: &str,
+    files: &Files,
+    exit_code: &mut i32,
+    lsb: i32,
+) -> Result<()> {
+    writeln!(s, "\n## {title}")?;
+
+    let n = files.len();
+
+    if n == 0 {
+        writeln!(s, "\nThere are zero {desc}s.")?;
+    } else {
+        if n == 1 {
+            writeln!(s, "\nThere is 1 {desc}(s):")?;
+        } else {
+            writeln!(s, "\nThere are {n} {desc}s:")?;
+        }
+
+        for file in files {
+            write!(s, "\n- `{}`", file.display())?;
+        }
+        writeln!(s)?;
+
+        *exit_code |= lsb;
+    }
+
+    Ok(())
 }
