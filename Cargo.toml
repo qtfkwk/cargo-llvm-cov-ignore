@@ -1,6 +1,6 @@
 [package]
 name = "cargo-llvm-cov-ignore"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2024"
 description = "Run `cargo llvm-cov` with ignore capabilities and simple report"
 repository = "https://github.com/qtfkwk/cargo-llvm-cov-ignore"
@@ -11,3 +11,4 @@ anyhow = "1"
 clap = { version = "4", features = ["derive"] }
 clap-cargo = "0"
 ignore = "0"
+owo-colors = "4"

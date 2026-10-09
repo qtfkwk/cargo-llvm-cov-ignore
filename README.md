@@ -2,9 +2,9 @@
 
 Run `cargo llvm-cov` with ignore capabilities and simple report
 
-- Ignore uncovered lines by appending `//cargo-llvm-cov-ignore:line` to the line
+- Ignore an uncovered line by appending `//cargo-llvm-cov-ignore:line` to the line
 
-- Ignore whole files by including `//cargo-llvm-cov-ignore:file` in the file
+- Ignore all uncovered lines in a file by including `//cargo-llvm-cov-ignore:file` in the file
 
 - Exit code:
   - LSB 1 is set if there are unignored uncovered lines
@@ -33,11 +33,12 @@ cargo llvm-cov-ignore -h
 ```text
 Run `cargo llvm-cov` with ignore capabilities and simple report
 
-Usage: cargo llvm-cov-ignore
+Usage: cargo llvm-cov-ignore [OPTIONS]
 
 Options:
-  -h, --help     Print help
-  -V, --version  Print version
+      --color <auto|always|never>  Color output
+  -h, --help                       Print help
+  -V, --version                    Print version
 ```
 
 # Version
@@ -47,7 +48,7 @@ cargo llvm-cov-ignore -V
 ```
 
 ```text
-cargo-llvm-cov-ignore 0.2.0
+cargo-llvm-cov-ignore 0.3.0
 ```
 
 # Example
@@ -59,16 +60,8 @@ cargo llvm-cov-ignore
 ```text
 # Code Coverage
 
-## Uncovered Lines
-
-There are zero files with uncovered lines.
-
-## Unused Ignored Lines
-
-There are zero files with unused ignored lines.
-
-## Unused Ignored Files
-
-There are zero unused ignored files.
+- There are [32mzero[39m files with uncovered lines.
+- There are [32mzero[39m files with unused ignored lines.
+- There are [32mzero[39m unused ignored files.
 ```
 

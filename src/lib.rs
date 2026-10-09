@@ -8,6 +8,7 @@
 use {
     anyhow::{Result, anyhow},
     ignore::Walk,
+    owo_colors::OwoColorize,
     std::{
         collections::{BTreeMap, BTreeSet},
         fmt::Write,
@@ -34,6 +35,14 @@ type Files = BTreeSet<PathBuf>;
 type Lines = BTreeSet<usize>;
 
 type FileLines = BTreeMap<PathBuf, Lines>;
+
+//--------------------------------------------------------------------------------------------------
+// Enums
+
+enum Color {
+    Green,
+    Red,
+}
 
 //--------------------------------------------------------------------------------------------------
 // Functions
@@ -214,37 +223,38 @@ pub fn generate_report(
     uncovered_lines: &FileLines,
     unused_ignored_files: &Files,
     unused_ignored_lines: &FileLines,
+    color: bool,
 ) -> Result<(i32, String)> {
     let mut exit_code = 0;
     let mut report = String::new();
 
-    writeln!(&mut report, "# Code Coverage")?;
+    writeln!(&mut report, "# Code Coverage\n")?;
 
     report_lines(
         &mut report,
-        "Uncovered Lines",
         "uncovered line",
         uncovered_lines,
         &mut exit_code,
         1,
+        color,
     )?;
 
     report_lines(
         &mut report,
-        "Unused Ignored Lines",
         "unused ignored line",
         unused_ignored_lines,
         &mut exit_code,
         2,
+        color,
     )?;
 
     report_files(
         &mut report,
-        "Unused Ignored Files",
         "unused ignored file",
         unused_ignored_files,
         &mut exit_code,
         4,
+        color,
     )?;
 
     Ok((exit_code, report))
@@ -263,15 +273,17 @@ fn write_files_line_ranges(s: &mut String, lines: &FileLines) -> Result<()> {
 
             writeln!(
                 s,
-                "\n- `{}`: {total} {}, {num_ranges} {}:\n",
+                "\n  - `{}`: {total} {}, {num_ranges} {}:\n",
                 file.display(),
                 if total == 1 { "line" } else { "lines" },
                 if num_ranges == 1 { "range" } else { "ranges" },
             )?;
 
             for (i, range) in r.iter().enumerate() {
-                writeln!(s, "  {}. {range}", i + 1)?;
+                writeln!(s, "    {}. {range}", i + 1)?;
             }
+
+            writeln!(s)?;
         }
     }
 
@@ -315,23 +327,33 @@ fn ranges(numbers: &Lines) -> Vec<String> {
 /// Report lines
 fn report_lines(
     s: &mut String,
-    title: &str,
     desc: &str,
     lines: &FileLines,
     exit_code: &mut i32,
     lsb_val: i32,
+    color: bool,
 ) -> Result<()> {
-    writeln!(s, "\n## {title}")?;
-
     let n = lines.len();
 
     if n == 0 {
-        writeln!(s, "\nThere are zero files with {desc}s.")?;
+        writeln!(
+            s,
+            "- There are {} files with {desc}s.",
+            colorize(color, Color::Green, "zero"),
+        )?;
     } else {
         if n == 1 {
-            writeln!(s, "\nThere is 1 file with {desc}(s):")?;
+            writeln!(
+                s,
+                "- There is {} file with {desc}(s):",
+                colorize(color, Color::Red, "1"),
+            )?;
         } else {
-            writeln!(s, "\nThere are {n} files with {desc}s:")?;
+            writeln!(
+                s,
+                "- There are {} files with {desc}s:",
+                colorize(color, Color::Red, &n.to_string()),
+            )?;
         }
 
         write_files_line_ranges(s, lines)?;
@@ -347,32 +369,50 @@ fn report_lines(
 /// Report files
 fn report_files(
     s: &mut String,
-    title: &str,
     desc: &str,
     files: &Files,
     exit_code: &mut i32,
     lsb_val: i32,
+    color: bool,
 ) -> Result<()> {
-    writeln!(s, "\n## {title}")?;
-
     let n = files.len();
 
     if n == 0 {
-        writeln!(s, "\nThere are zero {desc}s.")?;
+        writeln!(
+            s,
+            "- There are {} {desc}s.",
+            colorize(color, Color::Green, "zero"),
+        )?;
     } else {
         if n == 1 {
-            writeln!(s, "\nThere is 1 {desc}(s):")?;
+            writeln!(
+                s,
+                "- There is {} {desc}(s):",
+                colorize(color, Color::Red, "1")
+            )?;
         } else {
-            writeln!(s, "\nThere are {n} {desc}s:")?;
+            writeln!(
+                s,
+                "- There are {} {desc}s:",
+                colorize(color, Color::Red, &n.to_string())
+            )?;
         }
 
         for file in files {
             write!(s, "\n- `{}`", file.display())?;
         }
-        writeln!(s)?;
+        writeln!(s, "\n")?;
 
         *exit_code |= lsb_val;
     }
 
     Ok(())
+}
+
+fn colorize(cond: bool, color: Color, s: &str) -> String {
+    match (cond, color) {
+        (true, Color::Green) => s.green().to_string(),
+        (true, Color::Red) => s.red().to_string(),
+        _ => s.to_owned(),
+    }
 }
