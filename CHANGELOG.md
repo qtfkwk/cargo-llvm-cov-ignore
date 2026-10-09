@@ -9,6 +9,7 @@
 - 0.2.0 (2026-10-09): Use [`ignore`] crate instead of [`walkdir`] crate to avoid recursing unnecessary files/directories; miscellaneous cleanup
 
 - 0.3.0 (2026-10-09): Add colors; simplify report; improve readme
+  - 0.3.1 (2026-10-09): Fix readme
 
 [`ignore`]: https://crates.io/crates/ignore
 

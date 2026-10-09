@@ -51,6 +51,6 @@ cargo llvm-cov-ignore
 ```
 
 ```text
-!run:cd .. && target/release/cargo-llvm-cov-ignore llvm-cov-ignore --color=always
+!run:cd .. && target/release/cargo-llvm-cov-ignore llvm-cov-ignore
 ```
 
