@@ -12,6 +12,7 @@
   - 0.3.1 (2026-10-09): Fix readme
 
 - 0.4.0 (2026-10-12): Nuke output heading; update dependencies
+  - 0.4.1 (2026-10-12): Add bold; update dependencies
 
 [`ignore`]: https://crates.io/crates/ignore
 

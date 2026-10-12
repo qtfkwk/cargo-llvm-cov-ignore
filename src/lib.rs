@@ -409,8 +409,8 @@ fn report_files(
 
 fn colorize(cond: bool, color: Color, s: &str) -> String {
     match (cond, color) {
-        (true, Color::Green) => s.green().to_string(),
-        (true, Color::Red) => s.red().to_string(),
+        (true, Color::Green) => s.bold().green().to_string(),
+        (true, Color::Red) => s.bold().red().to_string(),
         _ => s.to_owned(),
     }
 }
