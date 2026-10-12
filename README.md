@@ -48,7 +48,7 @@ cargo llvm-cov-ignore -V
 ```
 
 ```text
-cargo-llvm-cov-ignore 0.3.1
+cargo-llvm-cov-ignore 0.4.0
 ```
 
 # Example
@@ -58,8 +58,6 @@ cargo llvm-cov-ignore
 ```
 
 ```text
-# Code Coverage
-
 - There are zero files with uncovered lines.
 - There are zero files with unused ignored lines.
 - There are zero unused ignored files.

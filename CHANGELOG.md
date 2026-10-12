@@ -11,6 +11,8 @@
 - 0.3.0 (2026-10-09): Add colors; simplify report; improve readme
   - 0.3.1 (2026-10-09): Fix readme
 
+- 0.4.0 (2026-10-12): Nuke output heading; update dependencies
+
 [`ignore`]: https://crates.io/crates/ignore
 
 [`walkdir`]: https://crates.io/crates/walkdir

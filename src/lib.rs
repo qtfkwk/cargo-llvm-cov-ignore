@@ -228,8 +228,6 @@ pub fn generate_report(
     let mut exit_code = 0;
     let mut report = String::new();
 
-    writeln!(&mut report, "# Code Coverage\n")?;
-
     report_lines(
         &mut report,
         "uncovered line",
